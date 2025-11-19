@@ -14,6 +14,17 @@ export const mainNav: NavItem[] = [
     title: 'Services',
     href: '/services',
     description: 'View our comprehensive range of medical tests and services',
+    children: [
+      {
+        title: 'All Services',
+        href: '/services',
+      },
+      {
+        title: 'Blood Banking',
+        href: '/blood',
+        description: 'Donate blood or request blood products',
+      },
+    ],
   },
   {
     title: 'Insurance Plans',

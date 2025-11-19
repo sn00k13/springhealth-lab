@@ -66,15 +66,55 @@ export default function QuotePage() {
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
-    setTimeout(() => {
-      console.log('Quote request submitted:', formData);
-      setIsSubmitting(false);
+    try {
+      // Prepare email content
+      const emailContent = `
+        <h2>New Quote Request</h2>
+        <h3>Personal Information</h3>
+        <p><strong>Name:</strong> ${formData.firstName} ${formData.lastName}</p>
+        <p><strong>Email:</strong> ${formData.email}</p>
+        <p><strong>Phone:</strong> ${formData.phone}</p>
+        
+        <h3>Insurance Information</h3>
+        <p><strong>Provider:</strong> ${formData.insuranceProvider || 'Not specified'}</p>
+        <p><strong>Insurance ID:</strong> ${formData.insuranceId || 'Not provided'}</p>
+        
+        <h3>Requested Tests</h3>
+        <ul>
+          ${formData.selectedTests.map(test => `<li>${test}</li>`).join('')}
+          ${formData.otherTest ? `<li>Other: ${formData.otherTest}</li>` : ''}
+        </ul>
+        
+        ${formData.message ? `
+        <h3>Additional Information</h3>
+        <p>${formData.message}</p>
+        ` : ''}
+      `;
+
+      // Send email using the email utility
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          to: process.env.NEXT_PUBLIC_ADMIN_EMAIL || 'ugo@bubblebarrel.dev',
+          subject: `New Quote Request from ${formData.firstName} ${formData.lastName}`,
+          html: emailContent,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to send email');
+      }
+
+      // Show success message
       setIsSuccess(true);
+      
       // Reset form
       setFormData({
         firstName: '',
@@ -90,7 +130,12 @@ export default function QuotePage() {
       
       // Reset success message after 5 seconds
       setTimeout(() => setIsSuccess(false), 5000);
-    }, 1500);
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('There was an error submitting your request. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const insuranceProviders = [
@@ -176,7 +221,7 @@ export default function QuotePage() {
                           required
                           value={formData.firstName}
                           onChange={handleChange}
-                          className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                          className="h-10 px-3 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 rounded-md"
                         />
                       </div>
                     </div>
@@ -193,7 +238,7 @@ export default function QuotePage() {
                           required
                           value={formData.lastName}
                           onChange={handleChange}
-                          className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                          className="h-10 px-3 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 rounded-md"
                         />
                       </div>
                     </div>
@@ -211,7 +256,7 @@ export default function QuotePage() {
                           required
                           value={formData.email}
                           onChange={handleChange}
-                          className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                          className="h-10 px-3 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 rounded-md"
                         />
                       </div>
                     </div>
@@ -228,7 +273,7 @@ export default function QuotePage() {
                           required
                           value={formData.phone}
                           onChange={handleChange}
-                          className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                          className="h-10 px-3 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 rounded-md"
                         />
                       </div>
                     </div>
@@ -254,7 +299,7 @@ export default function QuotePage() {
                           name="insuranceProvider"
                           value={formData.insuranceProvider}
                           onChange={handleChange}
-                          className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                          className="h-10 px-3 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 rounded-md bg-white"
                         >
                           <option value="">Select your insurance provider</option>
                           {insuranceProviders.map((provider) => (
@@ -277,7 +322,7 @@ export default function QuotePage() {
                           id="insuranceId"
                           value={formData.insuranceId}
                           onChange={handleChange}
-                          className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                          className="h-10 px-3 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 rounded-md"
                         />
                       </div>
                     </div>
@@ -329,7 +374,7 @@ export default function QuotePage() {
                               id="otherTest"
                               value={formData.otherTest}
                               onChange={handleChange}
-                              className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                              className="h-10 px-3 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 rounded-md"
                             />
                           </div>
                         </div>
@@ -359,7 +404,7 @@ export default function QuotePage() {
                                 rows={4}
                                 value={formData.message}
                                 onChange={handleChange}
-                                className="shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 rounded-md"
+                                className="h-24 px-3 py-2 shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border border-gray-300 rounded-md"
                                 placeholder="Any special requirements or additional information..."
                               />
                             </div>

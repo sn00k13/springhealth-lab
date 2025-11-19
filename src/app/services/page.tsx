@@ -1,5 +1,6 @@
-import { BeakerIcon, HeartIcon, UserGroupIcon, ShieldCheckIcon, DocumentTextIcon } from '@heroicons/react/24/outline';
+import { BeakerIcon, HeartIcon, UserGroupIcon, ShieldCheckIcon, DocumentTextIcon, HeartIcon as HeartIconSolid } from '@heroicons/react/24/outline';
 import Image from 'next/image';
+import Link from 'next/link';
 
 // Import the image with the correct path
 const labTeamImage = '/images/our-services.jpg';
@@ -83,6 +84,20 @@ const services = [
       'Dermatopathology',
       'Cytogenetics'
     ]
+  },
+  {
+    name: 'Blood Banking',
+    description: 'Comprehensive blood collection, testing, and distribution services to ensure safe blood supply.',
+    icon: HeartIconSolid,
+    tests: [
+      'Whole Blood Donation',
+      'Platelet Donation',
+      'Emergency Blood Supply',
+      'Blood Typing',
+      'Crossmatching',
+      'Antibody Screening'
+    ],
+    link: '/blood'
   }
 ];
 
@@ -153,17 +168,17 @@ export default function ServicesPage() {
               {services.map((service) => {
                 const Icon = service.icon;
                 return (
-                  <div key={service.name} className="relative bg-white p-6 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+                  <div key={service.name} className="relative bg-white p-6 rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col h-full">
                     <div>
-                      <span className="rounded-lg inline-flex p-3 bg-blue-50 text-blue-600 ring-4 ring-white">
+                      <span className={`rounded-lg inline-flex p-3 ${service.name === 'Blood Banking' ? 'bg-red-50 text-red-600' : 'bg-blue-50 text-blue-600'} ring-4 ring-white`}>
                         <Icon className="h-6 w-6" aria-hidden="true" />
                       </span>
                     </div>
-                    <div className="mt-4">
+                    <div className="mt-4 flex-grow">
                       <h3 className="text-lg font-medium text-gray-900">{service.name}</h3>
                       <p className="mt-2 text-base text-gray-500">{service.description}</p>
                       <div className="mt-4">
-                        <h4 className="text-sm font-medium text-gray-900">Common Tests Include:</h4>
+                        <h4 className="text-sm font-medium text-gray-900">Common {service.name === 'Blood Banking' ? 'Services' : 'Tests'} Include:</h4>
                         <ul className="mt-2 space-y-1">
                           {service.tests.map((test, index) => (
                             <li key={index} className="text-sm text-gray-500">• {test}</li>
@@ -171,6 +186,16 @@ export default function ServicesPage() {
                         </ul>
                       </div>
                     </div>
+                    {service.link && (
+                      <div className="mt-4 pt-4 border-t border-gray-100">
+                        <Link 
+                          href={service.link}
+                          className="text-sm font-medium text-blue-600 hover:text-blue-500"
+                        >
+                          Learn more about Blood Donation <span aria-hidden="true">→</span>
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 );
               })}
